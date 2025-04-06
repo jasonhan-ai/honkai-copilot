@@ -3,6 +3,10 @@ from src.groq_controller import GroqController
 from src.input_controller import InputController
 import time
 from PIL import Image
+import os
+
+# 设置API密钥
+os.environ["GROQ_API_KEY"] = "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"
 
 def test_groq_chat():
     """测试Groq聊天功能"""
@@ -43,6 +47,40 @@ def test_groq_image_analysis():
     assert len(result) > 0
     print(f"\n分析结果:\n{result}")
 
+def test_groq_image_chat():
+    """测试Groq图像分析和聊天的组合功能"""
+    groq_controller = GroqController()
+    input_controller = InputController()
+    
+    # 等待2秒，给用户时间准备
+    print("2秒后开始截图进行分析...")
+    time.sleep(2)
+    
+    # 获取屏幕截图
+    screenshot = input_controller.screenshot()
+    
+    # 分析图像并发送到聊天
+    image_analysis = groq_controller.analyze_image(
+        image=screenshot,
+        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素。请用中文回答。"
+    )
+    
+    # 构建消息列表
+    messages = [
+        {
+            "role": "user",
+            "content": f"这是一张截图的分析结果：\n{image_analysis}\n\n问题：截图中的内容是什么？请用中文简单汇总。"
+        }
+    ]
+    
+    # 发送到聊天接口获取总结
+    response = groq_controller.chat(messages)
+    
+    assert isinstance(response, str)
+    assert len(response) > 0
+    print(f"\n图像分析结果:\n{image_analysis}")
+    print(f"\n总结回复:\n{response}")
+
 if __name__ == "__main__":
     # 运行单个测试
-    test_groq_image_analysis() 
+    test_groq_image_chat() 
