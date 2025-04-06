@@ -1,9 +1,10 @@
 # Honkai Copilot
 
 崩坏：星穹铁道游戏助手，基于计算机视觉和自然语言处理技术。
-![image](https://github.com/user-attachments/assets/9e5f4a51-b164-4307-b129-039958afd30d)
+
 
 ## 功能特性
+![image](https://github.com/user-attachments/assets/9b3f2e6b-cf3c-4217-8642-6ef2daf8d6ae)
 
 1. 屏幕内容分析
    - 使用InstructBLIP模型进行场景理解
