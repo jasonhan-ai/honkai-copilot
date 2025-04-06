@@ -23,7 +23,7 @@ class GroqController:
         self.client = Groq(api_key=api_key)
         
         # 默认模型
-        self.model = "llama3-8b-8192"  # 可以根据需要更改默认模型
+        self.model = "meta-llama/llama-4-scout-17b-16e-instruct"  # 使用Llama 4 Scout模型
     
     def _encode_image(self, image: Image.Image) -> str:
         """将PIL图像转换为base64编码
