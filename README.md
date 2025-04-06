@@ -1,6 +1,7 @@
 # Honkai Copilot
 
 崩坏：星穹铁道游戏助手，基于计算机视觉和自然语言处理技术。
+![image](https://github.com/user-attachments/assets/9e5f4a51-b164-4307-b129-039958afd30d)
 
 ## 功能特性
 
