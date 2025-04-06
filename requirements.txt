@@ -13,5 +13,10 @@ transformers_stream_generator
 groq
 python-dotenv  # 用于管理环境变量
 
+# Speech Recognition
+SpeechRecognition
+pyaudio
+wave
+
 # Development dependencies
 pytest 
