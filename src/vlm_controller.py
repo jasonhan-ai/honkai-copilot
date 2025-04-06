@@ -1,7 +1,7 @@
 from typing import Optional, Union, List, Tuple
 import torch
 from PIL import Image
-from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from transformers import InstructBlipProcessor, InstructBlipForConditionalGeneration
 import os
 import base64
 from io import BytesIO
@@ -21,7 +21,7 @@ class VLMController:
         self.processor = None
         
         # 模型配置
-        self.model_name = "microsoft/trocr-base-handwritten"
+        self.model_name = "Salesforce/instructblip-vicuna-7b"
         
         # 确保模型缓存目录存在
         self.cache_dir = os.path.join(os.path.expanduser("~"), ".cache/huggingface/hub")
@@ -66,20 +66,22 @@ class VLMController:
             print(f"正在加载模型 {self.model_name}...")
             
             # 加载处理器
-            self.processor = TrOCRProcessor.from_pretrained(
+            self.processor = InstructBlipProcessor.from_pretrained(
                 self.model_name,
                 cache_dir=self.cache_dir
             )
             
             # 加载模型
-            self.model = VisionEncoderDecoderModel.from_pretrained(
+            self.model = InstructBlipForConditionalGeneration.from_pretrained(
                 self.model_name,
-                cache_dir=self.cache_dir
+                cache_dir=self.cache_dir,
+                torch_dtype=torch.float16,
+                device_map="auto" if self.device == "cuda" else None,
             ).to(self.device)
             
             print("模型加载完成！")
     
-    def _split_image(self, image: Image.Image, num_blocks: int = 3) -> List[Tuple[Image.Image, Tuple[int, int]]]:
+    def _split_image(self, image: Image.Image, num_blocks: int = 2) -> List[Tuple[Image.Image, Tuple[int, int]]]:
         """
         将图像分割成多个小块
         
@@ -116,21 +118,25 @@ class VLMController:
     def analyze_image(
         self,
         image: Union[Image.Image, str],
-        prompt: str = None,  # 不再使用prompt参数
-        max_length: int = 128,
-        num_blocks: int = 3,
+        prompt: str = "请详细描述这个界面的内容，包括文本、按钮、图标等元素。",
+        max_length: int = 512,
+        num_beams: int = 5,
+        temperature: float = 0.7,
+        num_blocks: int = 2,
     ) -> str:
         """
-        分析图像并识别文本
+        分析图像并回答问题
         
         Args:
             image: PIL Image对象或图像文件路径
-            prompt: 不再使用，保留参数以保持兼容性
+            prompt: 提示词/问题
             max_length: 最大生成长度
+            num_beams: 束搜索的束数
+            temperature: 采样温度，控制输出的随机性
             num_blocks: 将图像分成几块（每边），总块数为num_blocks^2
             
         Returns:
-            识别出的文本
+            模型的回答
         """
         self._load_model()
         
@@ -140,38 +146,43 @@ class VLMController:
         
         # 分割图像
         blocks = self._split_image(image, num_blocks)
-        all_texts = []
+        all_responses = []
         
         # 分析每个块
         for i, (block, (x, y)) in enumerate(blocks):
             print(f"\n分析第 {i+1}/{len(blocks)} 块图像 (位置: {x}, {y})...")
             
-            # 转换为RGB模式（如果需要）
-            if block.mode != 'RGB':
-                block = block.convert('RGB')
+            # 为每个块准备特定的提示词
+            block_prompt = f"这是屏幕的第{x+1}行第{y+1}列部分。{prompt}"
             
             # 处理图像
-            pixel_values = self.processor(block, return_tensors="pt").pixel_values.to(self.device)
+            inputs = self.processor(
+                images=block,
+                text=block_prompt,
+                return_tensors="pt"
+            ).to(self.device)
             
-            # 生成文本
-            generated_ids = self.model.generate(
-                pixel_values,
-                max_length=max_length
+            # 生成回答
+            outputs = self.model.generate(
+                **inputs,
+                max_length=max_length,
+                num_beams=num_beams,
+                temperature=temperature,
+                do_sample=temperature > 0,
             )
             
-            # 解码文本
-            generated_text = self.processor.batch_decode(
-                generated_ids,
+            # 解码回答
+            response = self.processor.batch_decode(
+                outputs,
                 skip_special_tokens=True
-            )[0]
+            )[0].strip()
             
-            if generated_text.strip():  # 只添加非空文本
-                all_texts.append(f"区域 ({x+1}, {y+1}): {generated_text}")
+            all_responses.append(f"区域 ({x+1}, {y+1}) 分析结果：\n{response}")
         
-        # 合并所有文本
-        combined_text = "\n\n".join(all_texts)
+        # 合并所有回答
+        combined_response = "\n\n".join(all_responses)
         
-        return combined_text if combined_text else "未检测到任何文本"
+        return combined_response
     
     def batch_analyze_images(
         self,

@@ -19,10 +19,20 @@ def main():
     print('-' * 50)
     
     # 分析屏幕内容
+    prompt = """请仔细分析这个界面的内容，告诉我：
+1. 当前界面显示的主要内容和布局
+2. 所有可见的文本信息
+3. 界面中的按钮、图标和其他交互元素
+4. 界面的整体风格和设计特点
+请尽可能详细地描述。"""
+
     response = vlm.analyze_image(
         image=screenshot,
-        max_length=128,  # 适当的长度限制
-        num_blocks=3,    # 将屏幕分成3x3=9块
+        prompt=prompt,
+        max_length=512,
+        num_beams=5,
+        temperature=0.7,
+        num_blocks=2,  # 将屏幕分成2x2=4块
     )
     
     print(f'分析结果:\n{response}\n')
