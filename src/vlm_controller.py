@@ -21,7 +21,7 @@ class VLMController:
         self.processor = None
         
         # 模型配置
-        self.model_name = "Salesforce/instructblip-vicuna-7b"
+        self.model_name = "Salesforce/instructblip-flan-t5-xl"
         
         # 确保模型缓存目录存在
         self.cache_dir = os.path.join(os.path.expanduser("~"), ".cache/huggingface/hub")
@@ -117,26 +117,23 @@ class VLMController:
     
     def analyze_image(
         self,
-        image: Union[Image.Image, str],
-        prompt: str = "请详细描述这个界面的内容，包括文本、按钮、图标等元素。",
-        max_length: int = 512,
-        num_beams: int = 5,
-        temperature: float = 0.7,
-        num_blocks: int = 2,
-    ) -> str:
-        """
-        分析图像并回答问题
+        image,
+        prompt="请详细分析这个界面截图。描述：1. 界面的主要内容和标题 2. 所有可见的文本信息 3. 界面布局和设计特点 4. 按钮、图标等交互元素。请用中文回答，尽可能详细。",
+        max_length=512,
+        num_beams=5,
+        temperature=0.7,
+    ):
+        """分析图像内容。
         
         Args:
-            image: PIL Image对象或图像文件路径
-            prompt: 提示词/问题
-            max_length: 最大生成长度
-            num_beams: 束搜索的束数
-            temperature: 采样温度，控制输出的随机性
-            num_blocks: 将图像分成几块（每边），总块数为num_blocks^2
+            image: PIL.Image对象
+            prompt: 分析提示词
+            max_length: 生成文本的最大长度
+            num_beams: beam search的beam数量
+            temperature: 生成文本的随机性，越大越随机
             
         Returns:
-            模型的回答
+            str: 分析结果
         """
         self._load_model()
         
@@ -144,45 +141,29 @@ class VLMController:
         if isinstance(image, str):
             image = Image.open(image)
         
-        # 分割图像
-        blocks = self._split_image(image, num_blocks)
-        all_responses = []
+        # 处理图像
+        inputs = self.processor(
+            images=image,
+            text=prompt,
+            return_tensors="pt"
+        ).to(self.device)
         
-        # 分析每个块
-        for i, (block, (x, y)) in enumerate(blocks):
-            print(f"\n分析第 {i+1}/{len(blocks)} 块图像 (位置: {x}, {y})...")
-            
-            # 为每个块准备特定的提示词
-            block_prompt = f"这是屏幕的第{x+1}行第{y+1}列部分。{prompt}"
-            
-            # 处理图像
-            inputs = self.processor(
-                images=block,
-                text=block_prompt,
-                return_tensors="pt"
-            ).to(self.device)
-            
-            # 生成回答
-            outputs = self.model.generate(
-                **inputs,
-                max_length=max_length,
-                num_beams=num_beams,
-                temperature=temperature,
-                do_sample=temperature > 0,
-            )
-            
-            # 解码回答
-            response = self.processor.batch_decode(
-                outputs,
-                skip_special_tokens=True
-            )[0].strip()
-            
-            all_responses.append(f"区域 ({x+1}, {y+1}) 分析结果：\n{response}")
+        # 生成回答
+        outputs = self.model.generate(
+            **inputs,
+            max_length=max_length,
+            num_beams=num_beams,
+            temperature=temperature,
+            do_sample=temperature > 0,
+        )
         
-        # 合并所有回答
-        combined_response = "\n\n".join(all_responses)
+        # 解码回答
+        response = self.processor.batch_decode(
+            outputs,
+            skip_special_tokens=True
+        )[0].strip()
         
-        return combined_response
+        return response
     
     def batch_analyze_images(
         self,

@@ -1,0 +1,3 @@
+"""
+Honkai Copilot source package
+""" 
