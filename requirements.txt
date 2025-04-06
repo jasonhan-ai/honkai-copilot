@@ -1,10 +1,17 @@
-torch>=2.0.0
-transformers>=4.36.0
-accelerate>=0.25.0
-pillow>=10.0.0
-pyautogui>=0.9.54
-pytest>=7.4.3
-numpy>=1.24.0
-safetensors>=0.4.0
-bitsandbytes>=0.41.0  # 用于4-bit量化
-sentencepiece>=0.1.99  # 用于分词 
+# Core dependencies
+pillow
+pyautogui
+numpy
+easyocr
+transformers
+torch
+accelerate
+einops
+transformers_stream_generator
+
+# Vision and Language Models
+groq
+python-dotenv  # 用于管理环境变量
+
+# Development dependencies
+pytest 
