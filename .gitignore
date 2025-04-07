@@ -31,6 +31,15 @@ env/
 *.swp
 *.swo
 
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Screenshots
+screenshots/
+
 # OS
 .DS_Store
 .DS_Store?
