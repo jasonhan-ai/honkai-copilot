@@ -5,8 +5,6 @@ import time
 from PIL import Image
 import os
 
-# 设置API密钥
-os.environ["GROQ_API_KEY"] = "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"
 
 def test_groq_chat():
     """测试Groq聊天功能"""
@@ -40,7 +38,7 @@ def test_groq_image_analysis():
     # 分析图像
     result = groq_controller.analyze_image(
         image=screenshot,
-        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素。请用中文回答。"
+        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素,返回各个元素的绝对像素位置。请用中文回答。"
     )
     
     assert isinstance(result, str)
@@ -59,10 +57,10 @@ def test_groq_image_chat():
     # 获取屏幕截图
     screenshot = input_controller.screenshot()
     
-    # 分析图像并发送到聊天
+    # 分析图像并发送到聊天ß
     image_analysis = groq_controller.analyze_image(
         image=screenshot,
-        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素。请用中文回答。"
+        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素,返回各个元素的绝对像素位置。请用中文回答。"
     )
     
     # 构建消息列表
