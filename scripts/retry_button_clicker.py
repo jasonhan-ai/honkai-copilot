@@ -16,41 +16,7 @@ class RetryButtonClicker:
         # 获取屏幕尺寸
         self.screen_width, self.screen_height = pyautogui.size()
         print(f"当前屏幕分辨率: {self.screen_width}x{self.screen_height}")
-        # 加载校准数据
-        self.calibration_data = self.load_calibration()
-
-    def load_calibration(self):
-        """加载校准数据"""
-        try:
-            with open('calibration.json', 'r') as f:
-                return json.load(f)
-        except:
-            return None
-
-    def save_calibration(self, data):
-        """保存校准数据"""
-        with open('calibration.json', 'w') as f:
-            json.dump(data, f)
-
-    def calibrate(self, actual_x, actual_y):
-        """校准坐标"""
-        # 获取当前识别的坐标
-        current_x = int(0.500 * self.screen_width)  # 使用最后一次识别的x坐标
-        current_y = int(0.826 * self.screen_height)  # 使用最后一次识别的y坐标
-        
-        # 计算偏移量
-        offset_x = actual_x - current_x
-        offset_y = actual_y - current_y
-        
-        # 保存校准数据
-        self.calibration_data = {
-            'x': actual_x,
-            'y': actual_y,
-            'offset_x': offset_x,
-            'offset_y': offset_y
-        }
-        self.save_calibration(self.calibration_data)
-        print(f"校准完成，偏移量: x={offset_x}, y={offset_y}")
+      
 
     def capture_screen(self):
         """捕获当前屏幕"""
@@ -68,8 +34,8 @@ class RetryButtonClicker:
 4. 坐标值应该是0-1之间的相对位置，精确到小数点后5位
 
 请严格按照以下格式返回结果：
-x: 绝对位置
-y: 绝对位置
+x: 相对位置
+y: 相对位置
 
 如果没有找到按钮，只返回：未找到按钮
 
@@ -132,12 +98,7 @@ y: 绝对位置
             pyautogui.click()
             print("点击完成")
             
-            # 询问是否需要校准
-            response = input("是否需要校准坐标？(y/n): ")
-            if response.lower() == 'y':
-                actual_x = int(input("请输入实际按钮的x坐标: "))
-                actual_y = int(input("请输入实际按钮的y坐标: "))
-                self.calibrate(actual_x, actual_y)
+
         else:
             print("未找到按钮位置")
 
