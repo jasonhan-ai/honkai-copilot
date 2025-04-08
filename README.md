@@ -1,7 +1,5 @@
 # Honkai Copilot
 
-![Honkai Copilot](https://github.com/jasonhan-ai/honkai-copilot/assets/123456789/abcdef12-3456-7890-1234-567890abcdef)
-
 ## 项目简介
 
 Honkai Copilot 是一个基于 Python 的崩坏3游戏辅助工具，集成了语音识别、图像分析和智能对话功能，旨在提供更智能的游戏体验。
