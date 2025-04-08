@@ -38,7 +38,7 @@ def test_groq_image_analysis():
     # 分析图像
     result = groq_controller.analyze_image(
         image=screenshot,
-        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素,返回各个元素的绝对像素位置。请用中文回答。"
+        prompt=open(".src/prompts/current_screen_info.txt", "r", encoding="utf-8").read().strip()
     )
     
     assert isinstance(result, str)
@@ -60,7 +60,7 @@ def test_groq_image_chat():
     # 分析图像并发送到聊天ß
     image_analysis = groq_controller.analyze_image(
         image=screenshot,
-        prompt="请详细描述这个界面截图中的内容，包括界面布局、文本内容和视觉元素,返回各个元素的绝对像素位置。请用中文回答。"
+        prompt=open(".src/prompts/current_screen_info.txt", "r", encoding="utf-8").read().strip()
     )
     
     # 构建消息列表

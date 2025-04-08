@@ -1,22 +1,21 @@
 # Core dependencies
-pillow
-pyautogui
-numpy
-easyocr
-transformers
-torch
-accelerate
-einops
-transformers_stream_generator
+python-dotenv==1.0.0
+groq==0.4.2
+Pillow==10.2.0
+pytesseract==0.3.10
+SpeechRecognition==3.10.1
+pyaudio==0.2.14
+pyautogui==0.9.54
 
 # Vision and Language Models
-groq
 python-dotenv  # 用于管理环境变量
 
 # Speech Recognition
-SpeechRecognition
-pyaudio
 wave
 
 # Development dependencies
-pytest 
+pytest==7.4.3
+pytest-cov==4.1.0
+black==24.1.1
+flake8==7.0.0
+mypy==1.8.0 
