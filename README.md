@@ -1,63 +1,38 @@
 # Honkai Copilot
 
-崩坏：星穹铁道游戏助手，基于计算机视觉和自然语言处理技术。
+![Honkai Copilot](https://github.com/jasonhan-ai/honkai-copilot/assets/123456789/abcdef12-3456-7890-1234-567890abcdef)
 
+## 项目简介
 
-## 功能特性
-![image](https://github.com/user-attachments/assets/9b3f2e6b-cf3c-4217-8642-6ef2daf8d6ae)
+Honkai Copilot 是一个基于 Python 的崩坏3游戏辅助工具，集成了语音识别、图像分析和智能对话功能，旨在提供更智能的游戏体验。
 
-1. 屏幕内容分析
-   - 使用InstructBLIP模型进行场景理解
-   - 支持中英文场景描述
-   - 可配置的分析参数
+## 主要功能
 
-2. OCR文本识别
-   - 基于EasyOCR引擎
-   - 支持中英文识别
-   - 支持全屏和区域识别
+### 1. 语音识别与控制
+- 支持实时语音输入识别
+- 可自定义录音时长和参数
+- 支持多种语言识别
+- 自动清理临时文件
 
-3. 输入控制
-   - 键盘输入模拟
-   - 鼠标移动和点击
-   - 热键组合支持
+### 2. 图像分析与识别
+- 实时屏幕内容分析
+- 智能按钮定位
+- 自动点击功能
+- 支持坐标校准
 
-4. Groq API集成
-   - 使用meta-llama/llama-4-scout-17b-16e-instruct模型
-   - 支持图像分析和文本聊天
-   - 中文场景描述和总结
-   - 可配置的生成参数（temperature、max_tokens等）
+### 3. 智能对话系统
+- 基于 Groq API 的智能对话
+- 支持图像内容分析
+- 多轮对话支持
+- 上下文理解
 
-## 项目结构
+## 技术栈
 
-```
-.
-├── assets/                # 资源文件
-│   └── fonts/            # 字体文件
-│       ├── README.md     # 字体说明
-│       └── SimSun.ttf    # 宋体字体文件
-│
-├── examples/             # 示例代码
-│   └── input_controller_demo.py  # 输入控制示例
-│
-├── src/                  # 源代码
-│   ├── __init__.py
-│   ├── input_controller.py   # 输入控制模块
-│   ├── ocr_controller.py     # OCR识别模块
-│   ├── vlm_controller.py     # 视觉语言模型控制器
-│   └── groq_controller.py    # Groq API控制器
-│
-├── tests/                # 测试代码
-│   ├── __init__.py
-│   ├── test_input_controller.py  # 输入控制测试
-│   ├── test_ocr_demo.py         # OCR功能测试
-│   ├── test_vlm_demo.py         # VLM基础测试
-│   ├── test_vlm_screen.py       # VLM屏幕分析测试
-│   └── test_groq_controller.py  # Groq功能测试
-│
-├── .env                 # 环境变量配置
-├── LICENSE              # MIT许可证
-└── requirements.txt     # 项目依赖
-```
+- Python 3.8+
+- SpeechRecognition - 语音识别
+- PyAutoGUI - 自动化控制
+- Groq API - 智能对话
+- Pillow - 图像处理
 
 ## 安装说明
 
@@ -67,70 +42,82 @@ git clone https://github.com/jasonhan-ai/honkai-copilot.git
 cd honkai-copilot
 ```
 
-2. 创建虚拟环境：
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# 或
-.\venv\Scripts\activate   # Windows
-```
-
-3. 安装依赖：
+2. 安装依赖：
 ```bash
 pip install -r requirements.txt
 ```
 
-4. 配置环境变量：
-创建 `.env` 文件并添加以下内容：
+3. 配置环境变量：
 ```bash
-GROQ_API_KEY=your_api_key_here  # 替换为你的Groq API密钥
+cp .env.example .env
+# 编辑 .env 文件，填入必要的 API 密钥
 ```
 
-## 使用示例
+## 使用说明
 
-1. 运行输入控制示例：
-```bash
-python examples/input_controller_demo.py
+### 语音识别
+```python
+from src.speech_controller import SpeechController
+
+controller = SpeechController()
+text = controller.recognize_from_microphone(duration=5)  # 录音5秒
+print(f"识别结果: {text}")
 ```
 
-2. 运行OCR识别测试：
-```bash
-python -m pytest tests/test_ocr_demo.py -v
+### 按钮点击
+```python
+from scripts.retry_button_clicker import RetryButtonClicker
+
+clicker = RetryButtonClicker()
+clicker.click_retry_button()  # 自动点击"再来一次"按钮
 ```
 
-3. 运行屏幕分析：
-```bash
-python tests/test_vlm_screen.py
+### 智能对话
+```python
+from src.groq_controller import GroqController
+
+controller = GroqController()
+response = controller.chat("分析当前屏幕内容")
+print(f"AI回复: {response}")
 ```
 
-4. 运行Groq功能测试：
-```bash
-python -m pytest tests/test_groq_controller.py -v
+## 项目结构
+
+```
+honkai-copilot/
+├── src/
+│   ├── speech_controller.py    # 语音识别控制器
+│   ├── groq_controller.py      # Groq API 控制器
+│   └── utils.py                # 工具函数
+├── scripts/
+│   ├── retry_button_clicker.py # 按钮点击器
+│   └── mouse_position.py       # 鼠标位置跟踪器
+├── tests/
+│   ├── test_speech_controller.py
+│   └── test_groq_controller.py
+├── requirements.txt            # 项目依赖
+└── README.md                   # 项目说明
 ```
 
-## 开发说明
+## 贡献指南
 
-1. 输入控制模块 (`input_controller.py`)
-   - 提供键盘和鼠标操作的底层接口
-   - 支持相对和绝对坐标移动
-   - 支持组合键操作
-
-2. OCR识别模块 (`ocr_controller.py`)
-   - 封装EasyOCR引擎
-   - 提供全屏和区域文本识别
-   - 支持中英文识别配置
-
-3. 视觉语言模型控制器 (`vlm_controller.py`)
-   - 使用InstructBLIP模型进行场景理解
-   - 支持自定义提示词
-   - 可配置的生成参数
-
-4. Groq API控制器 (`groq_controller.py`)
-   - 使用meta-llama/llama-4-scout-17b-16e-instruct模型
-   - 支持图像分析和文本聊天功能
-   - 提供灵活的API参数配置
-   - 支持多种分析场景和提示词
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 Pull Request
 
 ## 许可证
 
-本项目采用MIT许可证。详见 [LICENSE](LICENSE) 文件。 
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+## 联系方式
+
+- 项目维护者：Jason Han
+- 邮箱：jasonhan@example.com
+
+## 致谢
+
+- [SpeechRecognition](https://github.com/Uberi/speech_recognition)
+- [PyAutoGUI](https://github.com/asweigart/pyautogui)
+- [Groq API](https://groq.com/) 
