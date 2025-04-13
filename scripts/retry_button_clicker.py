@@ -7,7 +7,7 @@ import pyautogui
 import json
 
 class RetryButtonClicker:
-    def __init__(self):
+    def __init__(self, button_description="再来一次"):
         self.groq = GroqController()
         self.input = InputController()
         # 设置pyautogui的安全设置
@@ -16,6 +16,8 @@ class RetryButtonClicker:
         # 获取屏幕尺寸
         self.screen_width, self.screen_height = pyautogui.size()
         print(f"当前屏幕分辨率: {self.screen_width}x{self.screen_height}")
+        # 设置按钮描述
+        self.button_description = button_description
       
     def capture_region_around_cursor(self):
         """截取鼠标位置附近的区域图片，大小为屏幕的四分之一"""
@@ -71,12 +73,12 @@ class RetryButtonClicker:
         return screenshot
 
     def analyze_screen(self, image):
-        """分析屏幕内容，找出重试按钮位置"""
-        prompt = """请仔细分析这张图片，找出"再来一次"按钮的精确位置。
+        """分析屏幕内容，找出按钮位置"""
+        prompt = f"""请仔细分析这张图片，找出"{self.button_description}"按钮的精确位置。
 
 要求：
 1. 按钮通常位于屏幕底部区域
-2. 按钮文字为"再来一次"或类似的重试文字
+2. 按钮文字为"{self.button_description}"或类似的文字
 3. 坐标应该是按钮的中心点位置
 4. 坐标值应该是0-1之间的相对位置，精确到小数点后5位
 
@@ -86,7 +88,7 @@ y: 相对位置
 
 如果没有找到按钮，只返回：未找到按钮
 
-注意：即使按钮不是很明显，只要能看到类似"再来一次"的文字，也请尽量给出位置。
+注意：即使按钮不是很明显，只要能看到类似"{self.button_description}"的文字，也请尽量给出位置。
 请不要返回任何额外的描述性文字，只返回坐标值或未找到按钮的提示。"""
         
         result = self.groq.analyze_image(image, prompt)
@@ -160,7 +162,7 @@ y: 相对位置
             return diff_percentage > 5
         return False
 
-    def click_retry_button(self):
+    def click_button(self):
         """执行完整的点击流程"""
         print("开始捕获屏幕...")
         before_screenshot = self.capture_screen()
@@ -201,5 +203,10 @@ y: 相对位置
             print("未找到按钮位置")
 
 if __name__ == "__main__":
+    # 使用默认的"再来一次"按钮
     clicker = RetryButtonClicker()
-    clicker.click_retry_button() 
+    clicker.click_button()
+    
+    # 或者指定其他按钮描述
+    # clicker = RetryButtonClicker(button_description="开始游戏")
+    # clicker.click_button() 
