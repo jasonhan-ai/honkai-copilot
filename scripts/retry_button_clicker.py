@@ -138,29 +138,54 @@ y: 相对位置
         result = self.analyze_screen(region_screenshot)
         print(f"区域分析结果: {result}")
         
-        coordinates = self.parse_coordinates(result)
-        if coordinates:
-            x, y = coordinates
-            # 将区域相对坐标转换为屏幕绝对坐标
-            x = left + x
-            y = top + y
-            print(f"找到按钮位置: ({x}, {y})")
-            print("移动鼠标并点击...")
-            pyautogui.moveTo(x, y, duration=0.5)
-            pyautogui.click()
-            print("点击完成")
+        # 直接解析相对坐标
+        try:
+            lines = result.split('\n')
+            x = None
+            y = None
+            for line in lines:
+                line = line.strip()
+                if ':' not in line:
+                    continue
+                key, value = line.split(':', 1)
+                key = key.strip().lower()
+                if key == 'x':
+                    try:
+                        x = float(value.strip())
+                    except:
+                        continue
+                elif key == 'y':
+                    try:
+                        y = float(value.strip())
+                    except:
+                        continue
             
-            # 等待2秒后再次截屏
-            print("等待2秒后检查屏幕变化...")
-            time.sleep(2)
-            after_screenshot = self.capture_screen()
-            
-            # 比较前后屏幕的差异
-            diff_percentage = self.compare_images(before_screenshot, after_screenshot)
-            print(f"屏幕变化程度: {diff_percentage:.2f}%")
-            
-            return diff_percentage > 5
-        return False
+            if x is not None and y is not None:
+                # 将相对坐标转换为区域内的绝对坐标
+                region_width = region_screenshot.width
+                region_height = region_screenshot.height
+                x = left + int(x * region_width)
+                y = top + int(y * region_height)
+                print(f"找到按钮位置: ({x}, {y})")
+                print("移动鼠标并点击...")
+                pyautogui.moveTo(x, y, duration=0.5)
+                pyautogui.click()
+                print("点击完成")
+                
+                # 等待2秒后再次截屏
+                print("等待2秒后检查屏幕变化...")
+                time.sleep(2)
+                after_screenshot = self.capture_screen()
+                
+                # 比较前后屏幕的差异
+                diff_percentage = self.compare_images(before_screenshot, after_screenshot)
+                print(f"屏幕变化程度: {diff_percentage:.2f}%")
+                
+                return diff_percentage > 1
+            return False
+        except Exception as e:
+            print(f"解析坐标时出错: {str(e)}")
+            return False
 
     def click_button(self):
         """执行完整的点击流程"""
@@ -190,7 +215,7 @@ y: 相对位置
             print(f"屏幕变化程度: {diff_percentage:.2f}%")
             
             # 如果变化程度超过阈值，认为点击成功
-            if diff_percentage > 5:
+            if diff_percentage > 1:
                 print("检测到明显的屏幕变化，点击成功")
             else:
                 print("未检测到明显的屏幕变化，开始二次尝试...")
@@ -203,10 +228,6 @@ y: 相对位置
             print("未找到按钮位置")
 
 if __name__ == "__main__":
-    # 使用默认的"再来一次"按钮
-    clicker = RetryButtonClicker()
-    clicker.click_button()
-    
-    # 或者指定其他按钮描述
-    # clicker = RetryButtonClicker(button_description="开始游戏")
-    # clicker.click_button() 
+    # 测试点击"初学者手册"按钮
+    clicker = RetryButtonClicker(button_description="初学者手册")
+    clicker.click_button() 
